@@ -1,6 +1,6 @@
 var myMap = L.map("mapid", {
     center: [39.52, -98.67],
-    zoom: 4
+    zoom: 2
   });
   
   // Adding a tile layer (the background map image) to our map
@@ -13,7 +13,7 @@ var myMap = L.map("mapid", {
   }).addTo(myMap);
 
 
-  var url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_month.geojson"
+  var url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_month.geojson";
 
 //   function color(){
 //     var color = "";
@@ -35,39 +35,68 @@ var myMap = L.map("mapid", {
 // }
 
   d3.json(url, function(response){
-      for (var i = 0; i < response.length; i++){
+      // for (var i = 0; i < response.length; i++){
 
-    var geoJson = response.features[0].geometry;
-    var long = geoJson.coordinates[0];
-    var lat = geoJson.coordinates[1];
-    var depth = geoJson.coordinates[2];
-    var magnitude = response.features[0].properties.mag;
+    // var geoJson = response.features[0].geometry;
+    // var long = geoJson.coordinates[0];
+    // var lat = geoJson.coordinates[1];
+    // var depth = geoJson.coordinates[2];
+    // var magnitude = response.features[0].properties.mag;
  
-        function color(){
+        function color(n){
             var color = "";
-            if (depth < 10) {
-              color = "lime-green";
+            if (n < 10) {
+              color = "lime";
             }
-            else if (depth < 30) {
-              color = "yellow-green";
+            else if (n< 30) {
+              color = "yellow";
             }
-            else if (depth < 50) {
+            else if (n < 50) {
               color = "orange";
             }
-            else if (depth < 70) {
-              color = "burnt orange";
+            else if (n < 70) {
+              color = "orange";
             }
-            else if (depth < 90){
+            else if (n < 90){
                 color = "brown"
             }
+            return color;
         }
-        L.circle([lat,long], {
-            fillOpacity: 0.75,
-            color: "white",
-            fillColor: color(depth),
-            // Adjust radius
-            radius: magnitude
-          }).addTo(myMap);//.bindPopup("<h1>" + countries[i].name + "</h1> <hr> <h3>Points: " + countries[i].points + "</h3>").addTo(myMap);
+
+    var geometry = response.features[0].geometry;
+    var long = geometry.coordinates[0];
+    var lat = geometry.coordinates[1];
+    var depth = geometry.coordinates[2];
+    var magnitude = response.features[0].properties.mag;
+
+
+
+L.geoJson(response, {
+  // We turn each feature into a circleMarker on the map.
+  pointToLayer: function(feature, geometry) {
+    console.log(feature.properties.mag);
+    return L.circleMarker(geometry, {
+      fillOpacity: 0.5,
+      color: color(geometry.alt),
+      weight: .5,
+      fillColor: color(geometry.alt),
+      // Adjust radius
+      radius: feature.properties.mag 
+      // .addTo(myMap).bindPopup("<h1>" + feature.properties.place + "</h1>" + "<hr> <h3>Magnitude: " + feature.properties.mag + "</h3>");//.addTo(myMap);
+  })},
+}).addTo(myMap).bindPopup("<h1>" + feature.properties.place + "</h1>" + "<hr> <h3>Magnitude: " + feature.properties.mag + "</h3>");//.addTo(myMap);
+
+
+
+
+
+        // L.circle([lat,long], {
+        //     fillOpacity: 0.75,
+        //     color: "white",
+        //     fillColor: color(depth),
+        //     // Adjust radius
+        //     radius: magnitude
+        //   }).addTo(myMap);//.bindPopup("<h1>" + countries[i].name + "</h1> <hr> <h3>Points: " + countries[i].points + "</h3>").addTo(myMap);
 
     // var myLines = [{
     //     "type": "Circle",
@@ -84,6 +113,6 @@ var myMap = L.map("mapid", {
     // L.geoJSON(myLines, {
     //     style: myStyle
     // }).addTo(map);
-    }
+    // }
    
 });
